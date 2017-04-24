@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Тестовое задание 2</title>
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="html, css, вёрстка">
+	<meta name="description" content="Пример вёрстки расписания лекций проекта «Мобилизация» за 2016 год">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="EGO7000">
+	<meta name="msapplication-TileColor" content="#FFFFFF">
+	<meta name="theme-color" content="#FFFFFF">
+	<meta name="msapplication-TileImage" content="favicon/ms-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="faviconapple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="favicon/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+	<link rel="manifest" href="favicon/manifest.json">
+	<link rel="stylesheet" href="assets/css/styles.css">
+	<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+	<style>
+		h3, h4 {
+			margin: 15px 0 5px;
+		}
+		pre {
+		    margin: 5px 10px 10px 0;
+		    background: #f6f5f3;
+		    padding: 10px 20px;
+				overflow: auto;
+				border-radius: 5px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Задание 2.</h1>
+	<h2>Пример реализации библиотеки, предоставляющую API для работы с расписанием из первого задания ШРИ.</h2>
+	<hr>
+	<div class="description">
+		<h3>Подключение:</h3>
+			<pre>&lt;script&nbsp;src=<b>"path/to/sked.js"</b>&gt;&lt;/script&gt;</pre>
+			Также, на страницу необходимо добавить два блока:
+<pre>
+&lt;div id=&quot;filters&quot;&gt;&lt;/div&gt;
+&lt;div id=&quot;schedule&quot;&gt;&lt;/div&gt;
+</pre>
+			Далее необходимо добавить нужные школы/аудитории/лекции.<br>
+			После этого можно добавлять новое событие в расписание. <br>
+
+		<h4>Добавление данных:</h4>
+<pre>
+sked.school.add('Название школы', Число_студентов);
+sked.lecture.add('Название лекции', 'Имя лектора');
+sked.hall.add('Название аудитории', Вместимость, 'Описание, н-р, где она находится');
+</pre>
+
+		<h4>Изменение данных:</h4>
+<pre>
+sked.school.editTitle('Название школы' или id, 'Новое значение');
+sked.school.editQuantity('Название школы' или id, Новое_значение);
+sked.school.editDescription('Название школы' или id, 'Новое значение');
+</pre>
+		По аналогии со <b>school</b>, объекты <b>hall</b> и <b>lecture</b> имеют следующие методы:
+<pre>
+sked.lecture.editTitle(search, value);
+sked.lecture.editSpeaker(search, value);
+sked.hall.editTitle(search, value);
+sked.hall.editCapacity(search, value);
+sked.hall.editDescription(search, value);
+</pre>
+	* <b>search</b> - может быть как искомой строкой, так и числом, равным порядковому номеру объекта.
+
+	<h4>Отображение данных:</h4>
+<pre>
+sked.school.render;	<i>// отобразить школы</i>
+sked.event.render;	<i>// отобразить новое событие</i>
+sked.render;		<i>// отобразить всё расписание</i>
+</pre>
+
+	<h3>Вспомогательные методы:</h3>
+
+	<h4>Включить отладку:</h4>
+<pre>sked.debugging(true);</pre>
+
+	<h4>Просмотр данных через консоль (getter):</h4>
+<pre>
+sked.school.show;
+sked.lecture.show;
+sked.hall.show;
+</pre>
+
+	<h3>Создание события</h3>
+
+	<h4>Создание объекта расписания, используя объект <b>sked</b>.</h4>
+<pre>
+sked.event.setLecture().<i>&lt;цепочка вызовов&gt;</i>.save();
+</pre>
+
+	<h4>Создание объекта расписания, используя переменную:</h4>
+<pre>
+var event = sked.event.setDate('1/1/16').setTime('10:00');
+    event.setDuration(1.5)
+	.setHall(1) <i>/* Установим аудиторию */</i>
+	.setSchool(1) <i>/* Установим школу */</i>
+	.setSchool(sked.school.editTitle(2,"ШМР")) <i>/* Добавим ещё одну школу и сразу отредактируем её название */</i>
+	.setLecture(sked.lecture.add("Новая лекция","Фамилия лектора")) <i>/* Добавить лекцию и сразу привязать её к событию */</i>
+	.save(); <i>/* Сохраняем событие в расписание */</i>
+</pre>
+<b>
+	Важно понимать, что переменная ссылкается на конкретный объект <b>sked</b> и при создании второй переменной,
+	она всё равно будет указывать на тот же объект.
+</b>
+
+	<h4>Создание нескольких объектов расписания по отдельности:</h4>
+<pre>
+sked.newEvent('event_1'); <i>// создаст новую глобальную переменную <b>event_1</b></i>
+sked.newEvent('event_2'); <i>// создаст новую глобальную переменную <b>event_2</b></i>
+event_1.setHall(1); 	  <i>// по аналогии с одиночным созданием</i>
+event_2.setHall(2);
+</pre>
+
+
+	<h4>Пометить лекцию как прошедшую (setter):</h4>
+<pre>
+sked.event.done = id;
+</pre>
+
+	</div>
+</body>
+</html>

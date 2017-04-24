@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Тестовое задание 2 - пример испоьзования</title>
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="html, css, вёрстка">
+	<meta name="description" content="Пример вёрстки расписания лекций проекта «Мобилизация» за 2016 год">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="EGO7000">
+	<meta name="msapplication-TileColor" content="#FFFFFF">
+	<meta name="theme-color" content="#FFFFFF">
+	<meta name="msapplication-TileImage" content="favicon/ms-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="57x57" href="favicon/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="favicon/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="favicon/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="favicon/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="favicon/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="favicon/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="faviconapple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="favicon/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="favicon/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+	<link rel="manifest" href="favicon/manifest.json">
+	<link rel="stylesheet" href="assets/css/styles.css">
+	<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+	<h1>Задание 2.</h1>
+	<h2><small>Пример использования библиотеки</small> sked.js</h2>
+
+	<div class="description">
+		<style>
+			.filterForm fieldset { border: 1px solid #fee133; padding: 10px 50px; }
+			.filterForm input[type=text] { width: 60px; text-align: center; }
+			.filterForm a { text-transform: uppercase; padding: 10px 0; }
+			.filterForm .form-group { padding: 5px 0; }
+			.filterForm .controls { padding: 10px 0; }
+		</style>
+		<form action="" method="post" class="filterForm" id="f">
+			<fieldset>
+			<div class="form-group">
+				<label for="sch">Просмотр расписания:</label>
+				<select name="sch" id="sch">
+					<option value="0">Все школы</option>
+					<option value="1">ШРИ</option>
+					<option value="2">ШМД</option>
+					<option value="3">ШМР</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="hall">Просмотр графика лекций в аудитории:</label>
+				<select name="hall" id="hall">
+					<option value="1"></option>
+					<option value="2"></option>
+					<option value="3"></option>
+				</select>
+			</div>
+			<div class="form-group">
+				Интервал дат:
+	    		<input type="text" name="date_begin" id="date_begin" value="" placeholder="01/01/2016">
+					—
+					<input type="text" name="date_end" id="date_end" value="" placeholder="31/12/2016">
+    	</div>
+			<div class="controls">
+				<a class="" href="javascript:sked.filter(this);">Показать</a>
+			</div>
+			</fieldset>
+		</form>
+
+	</div>
+
+	<div class="wrapper" id="filters">
+
+	</div>
+	<div class="wrapper" id="schedule">
+
+	</div>
+	<!-- end wrapper -->
+
+<script src="assets/js/sked.js"></script>
+<script type="text/javascript">
+	sked.debugging(true);
+	/** Школы добавляются для примера,*/
+	sked.school.add("Школа разработки интерфейсов", 30, 'lecture-sch--RI');
+	sked.school.add("ШМД", 50, 'lecture-sch--MD');
+	sked.school.add("Школа мобильной разработки", 27, 'lecture-sch--MR');
+	sked.school.render;
+
+	sked.lecture.add("Лекция 1", "Иванов Иван");
+	sked.lecture.add("Лекция 2", "Иванов Иван");
+	sked.lecture.add("Лекция 3", "Петров Пётр");
+
+	sked.hall.add("Cиний кит", 100);
+	sked.hall.add("Рыба-меч", 50);
+	sked.hall.add("Рыжий пёс", 77);
+	sked.hall.add("Млечный путь", 999, "Находится рядом с галактикой Андромеда. Входит в Местное Сверхскопление (Сверхскопление Девы).");
+
+	sked.event.setDate('15/06/2016')
+			.setTime('19:00')
+			.setDuration(2.5)
+			.setHall(0) /* Установим аудиторию Синий кит*/
+			.setSchool(0) /* Установим школу */
+			.setSchool(sked.school.editTitle(1,"Школа мобильного дизайна")) /* Добавим ещё одну школу и отредактируем её название */
+			.setLecture(sked.lecture.add("Параллельные и распределённые вычисления»")) /* Добавим лекцию и сразу привяжем её к событию */
+			.save();
+</script>
+</body>
+</html>
