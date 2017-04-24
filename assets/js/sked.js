@@ -229,12 +229,6 @@ Object.defineProperties(lecture, {
      get: function() {
        return this.store;
      }
-   },
-   'done': {
-     set: function(search) {
-       obj = getObjFromArray(this.store, search);
-       obj.className = "lecture-done";
-     }
    }
 });
 Object.defineProperty(hall, 'show', {
@@ -269,7 +263,11 @@ Object.defineProperties(school, {
     }
   }
 });
-
+Date.prototype.getMonthName = function() {
+    var month = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+    'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    return month[this.getMonth()];
+}
 /*--------------------------------------------------------------------------*/
 /**
 * Работа с событиями расписания
@@ -444,6 +442,105 @@ function initEvent() {
           obj = getObjFromArray(events, search);
           obj.className = "lecture-done";
         }
+      },
+      'render': {
+        get: function() {
+          var schedule = document.getElementById('schedule');
+          var html = '';
+
+              function parseDate(strDate) {
+                var _date = strDate.split(/[.|,|-|\/|\s]/g);
+                return new Date(parseInt(_date[2], 10),
+                          parseInt(_date[1], 10) - 1,
+                          parseInt(_date[0], 10));
+              }
+              function parseDateTime(strDate, strTime) {
+                var _date = strDate.split(/[.|,|-|\/|\s]/g);
+                var _time = strTime.split(/[.|,|-|:|\s]/g);
+                return new Date(parseInt(_date[2], 10),
+                          parseInt(_date[1], 10) - 1,
+                          parseInt(_date[0], 10),
+                          parseInt(_time[0], 10),
+                          parseInt(_time[1], 10));
+              }
+              function getDateFromStr(strDate) {
+                return new Date(strDate);
+              }
+          var arrMonths = [];
+          var arrDays = [];
+          var arrLectures = [];
+          var _date;
+          var _dateTime
+              for (var i = 0; i < events.length; i++) {
+                if (i in events) {
+                  var e = events[i];
+                  _date = parseDate(e.date);
+                  _dateTime = parseDateTime(e.date, e.time);
+                  /** Получить все месяцы в расписании для sked--month */
+                  arrMonths[_date.getMonth()] = '<div class="sked--month">'+
+                                                  '<div class="sked-wrapper">'+
+                                                  _date.getMonthName()+' '+_date.getFullYear()+
+                                                  '</div>'+
+                                                  '<div class="lecture-wrapper">'+
+                                                  '<hr>'+
+                                                  '</div>'+
+                                                  '</div>';
+                  /** Получить все числа в расписании для sked-wrapper */
+                  arrDays[_date] = '<div class="sked-wrapper">'+
+                                      '<div class="sked"><span class="sked-date">'+
+                                      _date.getDate()+
+                                      '</span></div>'+
+                                      '</div>';
+
+                  arrLectures[_dateTime] = ''+
+                                      '<div class="lecture"><div class="lecture-sch">'+
+                                      '<div class="'+e.schools[0].className+'"><small>'+
+                                      e.schools[0].title+'</small></div></div>'+
+                                      '<div class="lecture-title"><span></span>'+
+                                      '<div>'+e.lecture.title+'</div></div>'+
+                                      '<div class="lecture-speaker">'+
+                                      '<div class="lecture-speaker--name"><b>'+
+                                      e.lecture.speaker+
+                                      '</b><span class="lecture-speaker--tooltip">'+
+                                      '<div class="lecture-speaker--card">'+
+                                      '<img src="assets/img/nophoto.png" alt="Speaker photo">'+
+                                      '<div class="lecture-speaker--wrapper">'+
+                                      '<div class="lecture-speaker--name">'+e.lecture.speaker+'</div>'+
+                                      '<div class="lecture-speaker--about">'+
+                                      'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque, molestiae.</div>'+
+                                      '<div class="lecture-speaker--more"><a href="javasript:void(0);">Подробнее</a></div>'+
+                                      '</div></div></span></div></div>'+
+                                      '<div class="lecture-info">'+
+                                      '<div class="lecture-info--date">'+e.date+'</div>'+
+                                      '<div class="lecture-info--place">'+e.hall.title+'</div>'+
+                                      '<div class="lecture-info--materials"></div>'+
+                                      '<div class="lecture-info--video"></div>'+
+                                      '</div></div>';
+                }
+              }
+          /** Вывод расписания */
+          for (var m in arrMonths) {
+            html += arrMonths[m];
+            for (var d in arrDays) {
+              if (getDateFromStr(d).getMonth() == m) {
+                html += arrDays[d];
+                html += '<div class="lecture-wrapper">';
+                  var current_date = getDateFromStr(d).getDate()+'.'+getDateFromStr(d).getMonth();
+                for (var l in arrLectures) {
+                  var lecture_date = getDateFromStr(l).getDate()+'.'+getDateFromStr(l).getMonth();
+                  if (lecture_date == current_date) {
+                    html += arrLectures[l];
+                    html += '<hr class="lecture-delimiter">';
+                  }
+                }
+                html += '</div>';
+              }
+            }
+          }
+
+          schedule.innerHTML = html;
+
+        }
       }
   });
   return event;
@@ -454,12 +551,14 @@ function filter() {
   console.log("Filtering...");
 }
 sked.filter = filter;
+
 /*--------------------------------------------------------------------------*/
 
-console.log(school);
-
-  if (false) {
-    sked.school = school;
+  if (false) { // на случай, если нужно будет посмотреть объекты заменить на true
+    sked.lectures = lectures;
+    sked.halls = halls;
+    sked.schools = schools;
+    sked.events = events;
   }
 
   sked.debugging = debugging;
