@@ -95,7 +95,7 @@
 	sked.school.add("Школа разработки интерфейсов", 30, 'lecture-sch--RI');
 	sked.school.add("ШМД", 50, 'lecture-sch--MD');
 	sked.school.add("Школа мобильной разработки", 27, 'lecture-sch--MR');
-	sked.school.render;
+	sked.school.render; /* можно не делать, т.к. в конце есть вызов sked.render; */
 
 	sked.lecture.add("Лекция 1", "Иванов Иван");
 	sked.lecture.add("Лекция 2", "Иванов Иван");
@@ -109,30 +109,38 @@
 	sked.event.setDate('15/06/2016')
 			.setTime('19:00')
 			.setDuration(2.5)
-			.setHall(0) /* Установим аудиторию Синий кит*/
+			.setHall(0) /* Установим аудиторию Синий кит */
 			.setSchool(0) /* Установим школу */
 			.setSchool(sked.school.editTitle(1,"Школа мобильного дизайна")) /* Добавим ещё одну школу и отредактируем её название */
-			.setLecture(sked.lecture.add("Параллельные и распределённые вычисления", "Лектор")) /* Добавим лекцию и сразу привяжем её к событию */
+			.setLecture(sked.lecture.add("Параллельные и распределённые вычисления", "Имя Фамилия")) /* Добавим лекцию и сразу привяжем её к событию */
 			.save();
 
 	sked.event.setDate('15/06/2016')
 			.setTime('19:30')
 			.setDuration(1.5)
-			.setHall(3)
+			.setHall(2)
 			.setSchool(2)
-			.setLecture(sked.lecture.add("Чаепитие"))
+			.setLecture(sked.lecture.add("Чаепитие с Java & Princess Nuri"))
 			.save();
 
 	sked.event.setDate('14.12.2016')
 			.setTime('22:00')
 			.setDuration(42)
-			.setHall(2)
+			.setHall(3)
 			.setSchool(0)
 			.setSchool(1)
 			.setSchool(2)
 			.setLecture(sked.lecture.add("Ответ на главный вопрос жизни, вселенной и всего такого", "Думателе"))
 			.save();
-	sked.event.render
+
+	sked.school.render; /* можно не делать, т.к. в конце есть вызов sked.render; */
+	sked.event.render; /* можно не делать, т.к. в конце есть вызов sked.render; */
+
+	sked.render; /* тоде можно не делать, т.к. ниже выполняется setter с перерисовкой */
+
+	sked.event.done = 0;
+	sked.event.done = 1;
+
 	sked.debugging(true);
 </script>
 </body>

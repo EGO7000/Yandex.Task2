@@ -441,6 +441,7 @@ function initEvent() {
         set: function(search) {
           obj = getObjFromArray(events, search);
           obj.className = "lecture-done";
+          this.render;
         }
       },
       'render': {
@@ -473,29 +474,36 @@ function initEvent() {
           var _dateTime
               for (var i = 0; i < events.length; i++) {
                 if (i in events) {
+                  var html_schools = '';
                   var e = events[i];
                   _date = parseDate(e.date);
                   _dateTime = parseDateTime(e.date, e.time);
                   /** Получить все месяцы в расписании для sked--month */
-                  arrMonths[_date.getMonth()] = '<div class="sked--month">'+
-                                                  '<div class="sked-wrapper">'+
-                                                  _date.getMonthName()+' '+_date.getFullYear()+
-                                                  '</div>'+
-                                                  '<div class="lecture-wrapper">'+
-                                                  '<hr>'+
-                                                  '</div>'+
-                                                  '</div>';
+                  arrMonths[_date.getMonth()] = ''
+                                    +'<div class="sked--month">'+
+                                      '<div class="sked-wrapper">'+
+                                      _date.getMonthName()+' '+_date.getFullYear()+
+                                      '</div>'+
+                                      '<div class="lecture-wrapper"><hr>'+
+                                      '</div></div>';
                   /** Получить все числа в расписании для sked-wrapper */
                   arrDays[_date] = '<div class="sked-wrapper">'+
                                       '<div class="sked"><span class="sked-date">'+
                                       _date.getDate()+
                                       '</span></div>'+
                                       '</div>';
-
-                  arrLectures[_dateTime] = ''+
-                                      '<div class="lecture"><div class="lecture-sch">'+
-                                      '<div class="'+e.schools[0].className+'"><small>'+
-                                      e.schools[0].title+'</small></div></div>'+
+                  /** Получить все лекции по числам */
+                  if (e.hasOwnProperty('className')) { /* для sked.event.done */
+                      e.className = ' '+e.className;
+                  } else {
+                      e.className = '';
+                  }
+                  for (s in e.schools) {
+                    html_schools += '<div class="'+e.schools[s].className+'"><small>'+e.schools[s].title+'</small></div>';
+                  }
+                  arrLectures[_dateTime] = ''+ //'<div class="'+e.schools[0].className+'"><small>'+e.schools[0].title+'</small></div>'
+                                      '<div class="lecture'+e.className+'">'+
+                                      '<div class="lecture-sch">'+html_schools+'</div>'+
                                       '<div class="lecture-title"><span></span>'+
                                       '<div>'+e.lecture.title+'</div></div>'+
                                       '<div class="lecture-speaker">'+
@@ -511,8 +519,8 @@ function initEvent() {
                                       '<div class="lecture-speaker--more"><a href="javasript:void(0);">Подробнее</a></div>'+
                                       '</div></div></span></div></div>'+
                                       '<div class="lecture-info">'+
-                                      '<div class="lecture-info--date">'+e.date+'</div>'+
-                                      '<div class="lecture-info--place">'+e.hall.title+'</div>'+
+                                      '<div class="lecture-info--date">'+e.date+' '+e.time+'</div>'+
+                                      '<div class="lecture-info--place">Аудитория «'+e.hall.title+'»</div>'+
                                       '<div class="lecture-info--materials"></div>'+
                                       '<div class="lecture-info--video"></div>'+
                                       '</div></div>';
@@ -568,6 +576,10 @@ sked.filter = filter;
   sked.event = initEvent();
   sked.newEvent = function(name) {
     window[name] = new initEvent();
+  }
+  sked.render = function() {
+    sked.school.render;
+    sked.event.render;
   }
   window.sked = sked;
 }.call(this));
