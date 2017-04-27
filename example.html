@@ -133,6 +133,16 @@
 			.setLecture(sked.lecture.add("Ответ на главный вопрос жизни, вселенной и всего такого", "Думателе"))
 			.save();
 
+/* Событие, которое не добавится из-за конфликта с размером аудитории! */
+	sked.event.setDate('16/06/2016')
+			.setTime('10:00')
+			.setDuration(1.5)
+			.setHall(1)
+			.setSchool(0)
+			.setSchool(2)
+			.setLecture(sked.lecture.add("Лекция в слишком маленькой аудитории"))
+			.save().clear();
+
 	sked.school.render; /* можно не делать, т.к. в конце есть вызов sked.render; */
 	sked.event.render; /* можно не делать, т.к. в конце есть вызов sked.render; */
 

@@ -90,6 +90,47 @@
     return false;
   }
 
+  /**
+   * Возвращает дату из строки с разделителями
+   *
+   * @private
+   * @param {string} strDate Строка вида дд.мм.гггг или дд-мм-гг и т.п
+   * @return {object} преобразованный объект даты
+   */
+  function parseDate(strDate) {
+    var _date = strDate.split(/[.|,|-|\/|\s]/g);
+    return new Date(parseInt(_date[2], 10),
+              parseInt(_date[1], 10) - 1,
+              parseInt(_date[0], 10));
+  }
+  /**
+   * Возвращает дату и время из текстовых строк
+   *
+   * @private
+   * @param {string} strDate Строка вида дд.мм.гггг или дд-мм-гг и т.п
+   * @param {string} strTime Строка вида 15:30 или 02-00
+   * @return {object} преобразованный объект дата+время
+   */
+  function parseDateTime(strDate, strTime) {
+    var _date = strDate.split(/[.|,|-|\/|\s]/g);
+    var _time = strTime.split(/[.|,|-|:|\s]/g);
+    return new Date(parseInt(_date[2], 10),
+              parseInt(_date[1], 10) - 1,
+              parseInt(_date[0], 10),
+              parseInt(_time[0], 10),
+              parseInt(_time[1], 10));
+  }
+  /**
+   * Преобразует строку в дату
+   *
+   * @private
+   * @param {string} strDate Строка вида "Fri Apr 28 2017 15:40:00 GMT+0300 (MSK)"
+   * @return {object} преобразованный объект даты
+   */
+  function getDateFromStr(strDate) {
+    return new Date(strDate);
+  }
+
 /*--------------------------------------------------------------------------*/
 
   function sked() {};
@@ -159,7 +200,7 @@
       },
       editCapacity: function(search, capacity) {
         if (capacity < 1) {
-          if (debug) console.log('Аудитория должна вмещать хотя бы 1 студента.');
+          if (debug) console.warn('Аудитория должна вмещать хотя бы 1 студента.');
           return false;
         }
         obj = getObjFromArray(this.store, search);
@@ -205,7 +246,7 @@
       editQuantity: function(search, quantity) {
         /* будем считать, что в школе может быть 0 студентов */
         if (quantity < 0) {
-          if (debug) console.log('В школе не может быть отрицательное количество студентов.');
+          if (debug) console.warn('В школе не может быть отрицательное количество студентов.');
           return false;
         }
         obj = getObjFromArray(this.store, search);
@@ -316,6 +357,8 @@ function initEvent() {
   event.setDuration = function( value=0 ) {
       if (typeof value !== 'number') return false;
         event.duration = value;
+        // TODO:
+        // добавить проверку, чтобы лекция заканчивалась не поздее 24:00
         if (debug) console.log('Продолжительность ['+value+'] часа установлена для события.');
       return this;
   };
@@ -404,14 +447,50 @@ function initEvent() {
       if (JSON.stringify(event.lecture) === '{}') return false;
       if (JSON.stringify(event.hall) === '{}') return false;
       if (JSON.stringify(event.schools) === '[]') return false;
-      if (debug) console.log('Событие можно сохранять.');
+      if (debug) console.log('Событие можно попытаться сохранить.');
     return true;
   };
   event.save = function() {
       if (event.check()) {
         var obj = {};
-        for (var key in event) {
+        for (var key in event) { // берём только enumerable ключи
           obj[key] = event[key];
+        }
+        /** Проверка на корректность и связность данных */
+
+        // Вместимость аудитории должна быть больше или равной количеству студентов на лекции.
+        var capacity = obj.schools.map(function(el) { return el.quantity; })
+                                  .reduce(function(sum, current) { return sum + current; }, 0);
+        if ( obj.hall.capacity < capacity ) {
+          if (debug) console.warn('Вместимость аудитории ['+obj.hall.title+'] должна быть >= количеству студентов на лекции.');
+          return this;
+        }
+
+        for (var i in events) {
+          if ( parseDate(events[i].date).getTime() == parseDate(obj.date).getTime() ) {
+            var start = parseDateTime(events[i].date, events[i].time).getTime(), // начало имеющегося события
+                  end = start + events[i].duration*3600*1000,
+               _start = parseDateTime(obj.date, obj.time).getTime(),             // начало добавляемого события
+                 _end = _start + obj.duration*3600*1000;
+
+              if ( start >= _start  &&  start < _end      /*смещение вперед*/
+                  || end <= _end  &&  end > _start        /*смещение назад*/
+                  || start < _end  &&  end > _start       /*вхождение*/
+                  || start >= _start  &&  end <= _end ) { /*поглощение и совпадение*/
+                  // Для одной школы не может быть двух лекций одновременно:
+                  for (var s in obj.schools) {
+                    if ( events[i].schools.indexOf(obj.schools[s]) != -1 ) {
+                      if (debug) console.warn('['+obj.schools[s].title+'] не может иметь двух лекций одновременно!');
+                      return this;
+                    }
+                  }
+                  // В одной аудитории не может быть одновременно двух разных лекций:
+                  if ( events[i].hall.title.toUpperCase() == obj.hall.title.toUpperCase() ) {
+                    if (debug) console.warn('В аудитории ['+obj.schools[s].title+'] не может быть одновременно двух разных лекций!');
+                    return this;
+                  }
+              }
+          }
         }
         events.push(obj);
         if (debug) console.log('Событие сохранено в расписании.');
@@ -448,25 +527,6 @@ function initEvent() {
         get: function() {
           var schedule = document.getElementById('schedule');
           var html = '';
-
-              function parseDate(strDate) {
-                var _date = strDate.split(/[.|,|-|\/|\s]/g);
-                return new Date(parseInt(_date[2], 10),
-                          parseInt(_date[1], 10) - 1,
-                          parseInt(_date[0], 10));
-              }
-              function parseDateTime(strDate, strTime) {
-                var _date = strDate.split(/[.|,|-|\/|\s]/g);
-                var _time = strTime.split(/[.|,|-|:|\s]/g);
-                return new Date(parseInt(_date[2], 10),
-                          parseInt(_date[1], 10) - 1,
-                          parseInt(_date[0], 10),
-                          parseInt(_time[0], 10),
-                          parseInt(_time[1], 10));
-              }
-              function getDateFromStr(strDate) {
-                return new Date(strDate);
-              }
           var arrMonths = [];
           var arrDays = [];
           var arrLectures = [];
@@ -493,12 +553,12 @@ function initEvent() {
                                       '</span></div>'+
                                       '</div>';
                   /** Получить все лекции по числам */
-                  if (e.hasOwnProperty('className')) { /* для sked.event.done */
-                      e.className = ' '+e.className;
+                  if (e.hasOwnProperty('className') && e.className !== '') { /* для sked.event.done */
+                      e.className = (e.className.startsWith(' ')) ? e.className : ' '+e.className; /* пробел уже добавлен? */
                   } else {
                       e.className = '';
                   }
-                  for (s in e.schools) {
+                  for (var s in e.schools) {
                     html_schools += '<div class="'+e.schools[s].className+'"><small>'+e.schools[s].title+'</small></div>';
                   }
                   arrLectures[_dateTime] = ''+ //'<div class="'+e.schools[0].className+'"><small>'+e.schools[0].title+'</small></div>'
