@@ -622,12 +622,30 @@ function initEvent() {
 // Хранение в LocalStorage в сериализованном виде;
 // Простая админка, подключаемая файлом sked.visual.js
 
-/* Заготовка для фильтрации
-function filter() {
-  console.log("Filtering...");
-}
-sked.filter = filter;
-*/
+  function filter(_start, _end) {
+    if (typeof _start === 'undefined' && typeof _end === 'undefined') {
+      sked.event.render;
+      if (debug) console.log('Фильтр очищен!');
+      return true;
+    }
+    if (typeof _start != 'string' && typeof _end != 'string') return false;
+    /** Обойти массив events и получить новый отфильтрованный массив */
+    function filterObj(event) {
+      if ( parseDate(event.date) >= parseDate(_start) && parseDate(event.date) <= parseDate(_end) )
+        return true;
+      else {
+        return false;
+      }
+    }
+    var _events = events.filter(filterObj);
+    var __events = events;
+      events = _events;
+      sked.event.render;
+      events = __events;
+    if (debug) console.log('Отфильтровано событий: '+_events.length+'.');
+    return true;
+  }
+  sked.filter = filter;
 
 /*--------------------------------------------------------------------------*/
 
