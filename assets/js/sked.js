@@ -428,7 +428,7 @@ function initEvent() {
   };
   /** Вызывать в конце цепочки методов */
   event.clear = function() {
-    d = debug;
+    var d = debug;
     sked.debugging(false);
     event.setDate()
           .setTime()
@@ -622,30 +622,66 @@ function initEvent() {
 // Хранение в LocalStorage в сериализованном виде;
 // Простая админка, подключаемая файлом sked.visual.js
 
-  function filter(_start, _end) {
-    if (typeof _start === 'undefined' && typeof _end === 'undefined') {
-      sked.event.render;
-      if (debug) console.log('Фильтр очищен!');
-      return true;
-    }
-    if (typeof _start != 'string' && typeof _end != 'string') return false;
-    /** Обойти массив events и получить новый отфильтрованный массив */
-    function filterObj(event) {
-      if ( parseDate(event.date) >= parseDate(_start) && parseDate(event.date) <= parseDate(_end) )
-        return true;
-      else {
-        return false;
+  function setFilter() {
+      var filters = {};
+      var _events = events;
+      var __events = events;
+
+      function filter(_start, _end) {
+
+        if (typeof _start === 'undefined' && typeof _end === 'undefined') {
+          events = __events;
+          _events = events;
+          sked.event.render;
+          if (debug) console.log('Фильтр очищен!');
+          return filters;
+        }
+        if (typeof _start != 'string' && typeof _end != 'string') return false;
+
+        /** Обойти массив events и получить новый отфильтрованный массив */
+        function filterObj(event) {
+          if ( parseDate(event.date) >= parseDate(_start) && parseDate(event.date) <= parseDate(_end) )
+            return true;
+          else {
+            return false;
+          }
+        }
+             _events = events.filter(filterObj);
+             events = _events;
+             sked.event.render;
+             events = __events; // вернули ссылку на исходный объект
+        if (debug) console.log('Отфильтровано событий: '+_events.length+'.');
+        return filters;
       }
-    }
-    var _events = events.filter(filterObj);
-    var __events = events;
-      events = _events;
-      sked.event.render;
-      events = __events;
-    if (debug) console.log('Отфильтровано событий: '+_events.length+'.');
-    return true;
+
+      filters.school = function(search) {
+          if (typeof search !== 'string' && typeof search !== 'number') {
+            if (debug) console.warn('В функцию переданы неправильные параметры.');
+            return false;
+          }
+          var obj = getObjFromArray(schools, search);
+              if (!obj) {
+                console.warn('Школа ['+search+'] не найдена!');
+                return this;
+              }
+          _events = _events.filter(function(event) {
+                                      for (var i in event.schools) {
+                                        if (obj.title.toUpperCase() == event.schools[i].title.toUpperCase()) {
+                                          return true;
+                                        }
+                                      }
+                                      return false;
+                                  });
+          events = _events;
+          sked.event.render;
+          events = __events; // вернули ссылку на исходный объект
+        return this;
+      }
+
+    return filter;
   }
-  sked.filter = filter;
+  //    filter('13/12/2016', '15/12/2016').school("ШРИ");
+  sked.filter = setFilter();
 
 /*--------------------------------------------------------------------------*/
 
