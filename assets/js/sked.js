@@ -678,6 +678,28 @@ function initEvent() {
         return this;
       }
 
+      filters.hall = function(search) {
+          if (typeof search !== 'string' && typeof search !== 'number') {
+            if (debug) console.warn('В функцию переданы неправильные параметры.');
+            return false;
+          }
+          var obj = getObjFromArray(halls, search);
+              if (!obj) {
+                console.warn('Аудитория ['+search+'] не найдена!');
+                return this;
+              }
+          _events = _events.filter(function(event) {
+                                      if (obj.title.toUpperCase() == event.hall.title.toUpperCase()) {
+                                        return true;
+                                      }
+                                      return false;
+                                  });
+          events = _events;
+          sked.event.render;
+          events = __events; // вернули ссылку на исходный объект
+        return this;
+      }
+
     return filter;
   }
   //    filter('13/12/2016', '15/12/2016').school("ШРИ");
