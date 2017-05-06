@@ -531,7 +531,16 @@ function initEvent() {
           var arrDays = [];
           var arrLectures = [];
           var _date;
-          var _dateTime
+          var _dateTime;
+
+          /**
+            Сортировка массива events, чтобы события выводились
+            в хронологическом порядке, а не в порядке добавления.
+          */
+          events.sort(function(a, b) {
+            return parseDateTime(a.date, a.time) > parseDateTime(b.date, b.time);
+          });
+
               for (var i = 0; i < events.length; i++) {
                 if (i in events) {
                   var html_schools = '';
@@ -615,10 +624,6 @@ function initEvent() {
 }
 
 /** TODO */
-// Сортировка events перед рендером
-// Проверка наложения событий при .save();
-// Просмотр расписания школы в заданный интервал дат;
-// Просмотр графика лекций в аудитории в заданный интервал дат;
 // Хранение в LocalStorage в сериализованном виде;
 // Простая админка, подключаемая файлом sked.visual.js
 
