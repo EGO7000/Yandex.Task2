@@ -152,6 +152,78 @@
 	sked.event.done = 1;
 
 	sked.debugging(true);
+
+	/*
+		ДОБАВИЛ ФИЛЬТРАЦИЮ ИЗ 1 ЗАДАНИЯ, ЧТОБЫ ПОКАЗАТЬ, ЧТО РАБОТАЮТ ОБА ВАРИАНТ,
+		ОДНАКО, ФОРМУЛИРОВКИ НЕМНОГО РАЗЛИЧАЮТСЯ, ПОЭТОМУ И ФИЛЬТРАЦИИ ТОЖЕ РАБОТАЮТ ПО РАЗНОМУ.
+	*/
+
+	function addEvent(elem, type, handler){ // кроссбраузерный обработчик событий
+		if (elem.addEventListener) {
+			elem.addEventListener(type, handler, false);
+		} else {
+			elem.attachEvent('on'+type, handler);
+		}
+		return false;
+	}
+
+	function hasClass(e, cls) { // jQuery и прочих нет, выкручиваемся как можем :)
+		return e.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'))
+	}
+
+	function filterSchedule(event) {
+		var el = event.target;
+		var filterSchool = el.dataset.options;
+		var toggleClass = 'hideBlock';
+
+				// пройтись по всем childNodes [div.lecture] и проверить их .style.display = 'none';
+				function checkLectures(lectures) {
+						var l = lectures.querySelectorAll('div.lecture'),
+								flag = false;
+						// проверяем lecture-sch и скрываем lecture
+						for (var i = 0; i < l.length; i++) {
+							// если количество школ == количеству скрытых школ для лекции
+							if (l[i].querySelector('.lecture-sch').children.length == l[i].querySelectorAll('.'+toggleClass).length) {
+								l[i].classList.add(toggleClass);
+							} else {
+								flag = true;
+								l[i].classList.remove(toggleClass);
+							}
+						}
+						// проверяем lecture и скрываем lecture-wrapper
+						if (flag) {
+							l[0].parentNode.classList.remove(toggleClass);
+						} else {
+							l[0].parentNode.classList.add(toggleClass);
+						}
+						// возвращаем true, если sked-date надо скрыть
+						return !flag;
+				}
+
+		if (hasClass(el, 'filter-sch')) {
+				el.classList.toggle("filterOff");
+				//var displayed = (hasClass(el,'off')) ? 'hideBlock' : '';
+				var schools = document.querySelectorAll('#schedule div.'+filterSchool),
+						skedWrapper = document.querySelectorAll('#schedule > .sked-wrapper');
+				for (i = 0; i < schools.length; i++) {
+							schools[i].classList.toggle(toggleClass);
+				}
+				// теперь пройдёмся по всем .sked-wrapper в #schedule,
+				// чтобы скрыть lecture, lecture-wrapper и sked-wrapper
+				for (i = 0; i < skedWrapper.length; i++) {
+						var lectureWrapper = skedWrapper[i].nextElementSibling;
+						if ( checkLectures(lectureWrapper) ) { // если все лекции скрыты
+								skedWrapper[i].classList.add(toggleClass);
+						} else {
+								skedWrapper[i].classList.remove(toggleClass);
+						}
+				}
+
+		}
+		return false;
+	}
+	addEvent(document.getElementById('filters'), 'click', filterSchedule);
+
 </script>
 </body>
 </html>
